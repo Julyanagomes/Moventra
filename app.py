@@ -1,5 +1,4 @@
-
-    count = Student.query.filter_by(
+   count = Student.query.filter_by(
         tenant_id=t.id,
         active=True
     ).count()
