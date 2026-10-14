@@ -13,8 +13,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'DEV-NAO-USE-EM-PRODUCAO-' + secrets.token_hex(16))
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///moventra_dev.db')
+database_url = os.getenv('DATABASE_URL', 'sqlite:///moventra_dev.db')
+
+if database_url.startswith('mysql://'):
+    database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+if database_url.startswith('mysql+pymysql://'):
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'connect_args': {
+            'ssl': {
+                'ca': '/etc/secrets/aiven-ca.pem'
+            }
+        }
+    }
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('APP_BASE_URL', '').startswith('https://')
@@ -26,16 +40,27 @@ PLANS = {
     'estudio': {'name':'Estúdio','price':Decimal('119.90'),'students':1000,'features':'Maior capacidade para equipes e estúdios'},
 }
 
+
 class Tenant(db.Model):
-    id=db.Column(db.Integer, primary_key=True)
-    name=db.Column(db.String(120), nullable=False)
-    email=db.Column(db.String(255), unique=True, nullable=False, index=True)
-    password_hash=db.Column(db.String(255), nullable=False)
-    plan=db.Column(db.String(30), nullable=False, default='essencial')
-    subscription_status=db.Column(db.String(30), nullable=False, default='trial')
-    mp_preference_id=db.Column(db.String(120))
-    mp_payment_id=db.Column(db.String(120))
-    created_at=db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    plan = db.Column(db.String(30), nullable=False, default='trial')
+    subscription_status = db.Column(
+        db.String(30), nullable=False, default='trial'
+    )
+
+    trial_ends_at = db.Column(db.DateTime, nullable=True)
+
+    mp_preference_id = db.Column(db.String(120))
+    mp_payment_id = db.Column(db.String(120))
+
+    created_at = db.Column(
+        db.DateTime, default=datetime.utcnow, nullable=False
+    )
+
 
 class Student(db.Model):
     id=db.Column(db.Integer, primary_key=True)
