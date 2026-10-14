@@ -1,40 +1,29 @@
-count = Student.query.filter_by(tenant_id=t.id, active=True).count()
+c
+    count = Student.query.filter_by(
+        tenant_id=t.id,
+        active=True
+    ).count()
+
     limite_alunos = (
         20 if t.subscription_status == 'trial'
         else PLANS.get(t.plan, PLANS['essencial'])['students']
     )
+
     if count >= limite_alunos:
         return jsonify(
             error=f'Limite de {limite_alunos} alunos ativos atingido para sua conta.'
         ), 402
-    s=Student(tenant_id=t.id,name=name,email=email,phone=d.get('phone','').strip()); db.session.add(s); db.session.commit(); return jsonify(id=s.id),201
 
-@app.post('/api/students/<int:sid>/account')
-@tenant_required
-def create_student_account(sid):
-    t=current_tenant(); s=Student.query.filter_by(id=sid,tenant_id=t.id).first_or_404()
-    if StudentAccount.query.filter_by(student_id=s.id).first(): return jsonify(error='Este aluno já tem acesso.'),400
-    # senha temporária única e gerada no servidor; entregue por canal seguro.
-    temp=secrets.token_urlsafe(9)
-    a=StudentAccount(tenant_id=t.id,student_id=s.id,email=s.email,password_hash=generate_password_hash(temp),must_change_password=True)
-    db.session.add(a); db.session.commit()
-    return jsonify(email=s.email,temporary_password=temp,message='Compartilhe a senha temporária por canal seguro. O aluno deverá trocá-la no primeiro acesso.'),201
+    s = Student(
+        tenant_id=t.id,
+        name=name,
+        email=email,
+        phone=d.get('phone', '').strip()
+    )
+    db.session.add(s)
+    db.session.commit()
+    return jsonify(id=s.id), 201
 
-@app.get('/api/appointments')
-@tenant_required
-def appointments_list():
-    t=current_tenant(); start=request.args.get('start'); end=request.args.get('end')
-    q=Appointment.query.filter_by(tenant_id=t.id).join(Student)
-    if start:
-        try:q=q.filter(Appointment.starts_at>=datetime.fromisoformat(start))
-        except ValueError:return jsonify(error='Data inicial inválida.'),400
-    if end:
-        try:q=q.filter(Appointment.starts_at<datetime.fromisoformat(end))
-        except ValueError:return jsonify(error='Data final inválida.'),400
-    return jsonify([{'id':a.id,'student_id':a.student_id,'student_name':a.student.name,'starts_at':a.starts_at.isoformat(timespec='minutes'),'modality':a.modality,'status':a.status} for a in q.order_by(Appointment.starts_at).limit(1000).all()])
-
-@app.post('/api/appointments/generate')
-@tenant_required
 def generate_appointments():
     t=current_tenant(); d=request.get_json(silent=True) or {}
     try:
