@@ -153,17 +153,51 @@ def landing():
     return render_template('landing.html', plans=PLANS)
 
 @app.route('/cadastro', methods=['GET','POST'])
+
+@app.route('/cadastro', methods=['GET', 'POST'])
 def signup():
-    if request.method=='POST':
-        name=request.form.get('name','').strip(); email=request.form.get('email','').strip().lower(); password=request.form.get('password','')
-        if not name or '@' not in email or len(password)<10:
-            flash('Informe nome, e-mail válido e senha com pelo menos 10 caracteres.','error')
-        elif Tenant.query.filter(func.lower(Tenant.email)==email).first(): flash('Este e-mail já possui conta.','error')
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+
+        if not name or '@' not in email or len(password) < 10:
+            flash(
+                'Informe nome, e-mail válido e senha com pelo menos 10 caracteres.',
+                'error'
+            )
+
+        elif Tenant.query.filter(
+            func.lower(Tenant.email) == email
+        ).first():
+            flash('Este e-mail já possui conta.', 'error')
+
         else:
-            t=Tenant(name=name,email=email,password_hash=generate_password_hash(password),subscription_status='pending')
-            db.session.add(t); db.session.commit(); session.clear(); session.update(role='tenant',tenant_id=t.id,email=t.email)
-            return redirect(url_for('choose_plan'))
+            agora = datetime.utcnow()
+
+            t = Tenant(
+                name=name,
+                email=email,
+                password_hash=generate_password_hash(password),
+                plan='trial',
+                subscription_status='trial',
+                trial_ends_at=agora + timedelta(days=14)
+            )
+
+            db.session.add(t)
+            db.session.commit()
+
+            session.clear()
+            session.update(
+                role='tenant',
+                tenant_id=t.id,
+                email=t.email
+            )
+
+            return redirect(url_for('dashboard'))
+
     return render_template('signup.html')
+
 
 @app.route('/login',methods=['GET','POST'])
 def login():
