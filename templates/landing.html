@@ -1,112 +1,4 @@
-
-{% extends 'base.html' %}
-
-{% block title %}Moventra — sua gestão, em movimento{% endblock %}
-
-{% block content %}
-<section class="hero">
-    <div>
-        <span class="eyebrow">GESTÃO FITNESS SEM COMPLICAÇÃO</span>
-
-        <h1>
-            Mais tempo para cuidar.<br>
-            <em>Menos tempo organizando.</em>
-        </h1>
-
-        <p class="lead">
-            Agenda, alunos e cobranças em um só lugar. Uma plataforma feita
-            para profissionais que querem organizar o negócio e crescer com tranquilidade.
-        </p>
-
-        <div class="actions">
-            <a class="btn primary" href="/cadastro">
-                Começar agora <span>→</span>
-            </a>
-            <a class="textlink" href="#planos">Conhecer os planos</a>
-        </div>
-
-        <div class="trust">
-            <span>✓ Agenda recorrente</span>
-            <span>✓ Portal do aluno</span>
-            <span>✓ Cobranças organizadas</span>
-        </div>
-    </div>
-
-    <div class="hero-card">
-        <div class="mocktop">
-            <span>VISÃO GERAL</span>
-            <span class="live">● AO VIVO</span>
-        </div>
-
-        <div class="mockstat">
-            <small>Alunos ativos</small>
-            <strong>48</strong>
-            <span>Seu negócio em ordem</span>
-        </div>
-
-        <div class="week">
-            <div>
-                <small>SEG</small>
-                <b>08:00</b>
-                <span>Mariana</span>
-            </div>
-            <div>
-                <small>TER</small>
-                <b>09:30</b>
-                <span>Lucas</span>
-            </div>
-            <div>
-                <small>QUA</small>
-                <b>10:00</b>
-                <span>Fernanda</span>
-            </div>
-        </div>
-
-        <div class="payment-row">
-            <span class="check">✓</span>
-            <div>
-                <b>Mensalidade recebida</b>
-                <small>Pagamento registrado</small>
-            </div>
-            <strong>+ R$ 240</strong>
-        </div>
-    </div>
-</section>
-
-<section class="brand-visual">
-    <img
-        src="{{ url_for('static', filename='hero-moventra.png') }}"
-        alt="Identidade visual Moventra CRM"
-    >
-</section>
-
-<section class="benefits">
-    <div>
-        <span class="featureicon">◷</span>
-        <h3>Agenda sob controle</h3>
-        <p>
-            Organize os horários e gere semanas de sessões em poucos cliques.
-        </p>
-    </div>
-
-    <div>
-        <span class="featureicon">↗</span>
-        <h3>Cobranças mais simples</h3>
-        <p>
-            Tenha o histórico financeiro e compartilhe lembretes pelo WhatsApp.
-        </p>
-    </div>
-
-    <div>
-        <span class="featureicon">◎</span>
-        <h3>Alunos conectados</h3>
-        <p>
-            Um portal individual para consultar horários e pagamentos,
-            sem expor informações de outros alunos.
-        </p>
-    </div>
-</section>
-
+```html
 <section id="planos" class="planshead">
     <span class="eyebrow">PLANOS CLAROS</span>
     <h2>Escolha o ritmo do seu negócio.</h2>
@@ -116,7 +8,6 @@
 <section class="plans">
     {% for key, p in plans.items() %}
     <article class="plan {% if key == 'profissional' %}featured{% endif %}">
-
         {% if key == 'profissional' %}
         <span class="popular">MAIS ESCOLHIDO</span>
         {% endif %}
@@ -124,5 +15,30 @@
         <h3>{{ p.name }}</h3>
 
         <div class="price">
-            R$ {{ '{:,.2f}'.format(p.price).replace(',', 'X').replace('.', ',').replace('X', '.') }}
-            <small>/
+            R$ {{ "%.2f"|format(p.price)|replace(".", ",") }}
+            <small>/mês</small>
+        </div>
+
+        <p>{{ p.features }}</p>
+
+        <div class="limit">
+            Até {{ p.students }} alunos ativos
+        </div>
+
+        <a
+            class="btn {% if key == 'profissional' %}primary{% else %}outline{% endif %}"
+            href="/cadastro"
+        >
+            Escolher plano
+        </a>
+    </article>
+    {% endfor %}
+</section>
+
+<p class="fineprint">
+    Os preços são propostas iniciais. O acesso pago é ativado após confirmação
+    do pagamento pelo Mercado Pago. A plataforma ainda precisa ser configurada
+    e publicada pelo responsável pela conta.
+</p>
+{% endblock %}
+```
