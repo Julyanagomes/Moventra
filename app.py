@@ -241,6 +241,21 @@ def mp_webhook():
         app.logger.exception('Falha ao processar webhook Mercado Pago'); return jsonify(ok=False),503
     return jsonify(ok=True)
 
+@app.get('/alunos')
+@tenant_required
+def students_page():
+    return render_template('alunos.html')
+
+@app.get('/agenda')
+@tenant_required
+def agenda_page():
+    return render_template('agenda.html')
+
+@app.get('/cobrancas')
+@tenant_required
+def payments_page():
+    return render_template('cobrancas.html')
+
 @app.get('/app')
 @tenant_required
 def dashboard():
