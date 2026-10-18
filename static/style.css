@@ -1343,3 +1343,30 @@ code {
     background: #111719 !important;
 }
 ```
+
+```css
+/* AJUSTE FINAL — TÍTULOS E MENU DA PÁGINA DE PLANOS */
+
+.planshead h1,
+.planshead h2 {
+    color: #f2f5f3 !important;
+}
+
+.planshead p {
+    color: #a5b0ae !important;
+}
+
+.navlinks a:not(.navcta),
+.navlinks .linkbtn {
+    color: #f2f5f3 !important;
+}
+
+.navlinks .navcta {
+    color: #071006 !important;
+    background: #a8f22e !important;
+}
+
+.planshead .eyebrow {
+    color: #a8f22e !important;
+}
+```
