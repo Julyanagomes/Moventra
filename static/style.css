@@ -1275,3 +1275,71 @@ code {
 }
 ```
 ```
+
+```css
+/* CORREÇÃO DEFINITIVA DE TEXTO — MOVENTRA */
+
+/* Texto geral da página de planos */
+.planshead,
+.planshead h1,
+.planshead h2,
+.planshead h3,
+.planshead p,
+.planshead span,
+.planshead div {
+    color: #f2f5f3 !important;
+}
+
+/* Títulos e descrições dos cartões */
+.plans .plan,
+.plans .plan h1,
+.plans .plan h2,
+.plans .plan h3,
+.plans .plan p,
+.plans .plan span,
+.plans .plan div,
+.plans .plan li {
+    color: #f2f5f3 !important;
+}
+
+/* Preços */
+.plans .plan .price,
+.plans .plan .price strong {
+    color: #ffffff !important;
+}
+
+.plans .plan .price small {
+    color: #a5b0ae !important;
+}
+
+/* Limites e plano recomendado */
+.plans .plan .limit,
+.plans .plan .popular {
+    color: #a8f22e !important;
+}
+
+/* Botões dos cartões */
+.plans .plan .btn.primary,
+.plans .plan.featured .btn {
+    background: #a8f22e !important;
+    color: #080c0e !important;
+}
+
+/* Botões sem destaque */
+.plans .plan .btn.outline {
+    background: transparent !important;
+    color: #ffffff !important;
+    border: 1px solid #465255 !important;
+}
+
+/* Texto explicativo abaixo dos cartões */
+.fineprint,
+.planshead + p {
+    color: #a5b0ae !important;
+}
+
+/* Garante fundo escuro */
+.plans .plan {
+    background: #111719 !important;
+}
+```
