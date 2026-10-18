@@ -1216,4 +1216,62 @@ code {
         animation-duration: .01ms !important;
     }
 }
+
+```css
+/* CORREÇÃO DE CONTRASTE — PÁGINA DE PLANOS */
+
+.planshead h1,
+.planshead h2,
+.planshead p,
+.planshead .eyebrow,
+.plan h1,
+.plan h2,
+.plan h3,
+.plan p,
+.plan span,
+.plan li {
+    color: #f2f5f3;
+}
+
+.planshead .eyebrow,
+.plan .popular,
+.plan .limit {
+    color: #a8f22e;
+}
+
+.plan .price {
+    color: #ffffff;
+}
+
+.plan .price small {
+    color: #a5b0ae;
+}
+
+.plan .btn.outline {
+    color: #f2f5f3;
+    border-color: #394548;
+    background: transparent;
+}
+
+.plan .btn.primary,
+.plan.featured .btn {
+    color: #071006;
+    background: linear-gradient(135deg, #c2ff54, #71d91b);
+}
+
+.fineprint {
+    color: #a5b0ae;
+}
+
+@media (max-width: 800px) {
+    .planshead h1,
+    .planshead h2 {
+        overflow-wrap: anywhere;
+    }
+
+    .plan {
+        width: 100%;
+    }
+}
+```
 ```
