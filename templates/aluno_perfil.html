@@ -1,37 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ student.name }} — Perfil do aluno | Moventra
-<section class="profile-grid profile-followup-grid">
-  <article class="manage-card">
-    <div class="profile-title-row"><div><h2>Objetivos do aluno</h2><p class="muted">Registre metas para orientar o acompanhamento.</p></div></div>
-    <form method="post" action="{{ url_for('student_add_followup', sid=student.id) }}" class="followup-form">
-      <input type="hidden" name="kind" value="objetivo">
-      <div class="field"><label for="goal-title">Objetivo</label><input id="goal-title" name="title" maxlength="120" placeholder="Ex.: Melhorar condicionamento" required></div>
-      <div class="field"><label for="goal-content">Detalhes e prazo</label><textarea id="goal-content" name="content" rows="3" maxlength="4000" placeholder="Descreva a meta, o prazo e como acompanhar o progresso..." required></textarea></div>
-      <button class="btn primary" type="submit">Salvar objetivo</button>
-    </form>
-    <div class="followup-list">
-      {% for item in goals %}
-      <article class="followup-item"><div class="followup-item-head"><strong>{{ item.title }}</strong><span>{{ item.created_at.strftime('%d/%m/%Y') }}</span></div><p>{{ item.content }}</p><form method="post" action="{{ url_for('student_delete_followup', sid=student.id, item_id=item.id) }}" onsubmit="return confirm('Excluir este objetivo?')"><button class="btn-small btn-danger" type="submit">Excluir</button></form></article>
-      {% else %}<p class="muted">Nenhum objetivo registrado ainda.</p>{% endfor %}
-    </div>
-  </article>
-  <article class="manage-card">
-    <div class="profile-title-row"><div><h2>Anotações de acompanhamento</h2><p class="muted">Registre observações importantes sobre os treinos.</p></div></div>
-    <form method="post" action="{{ url_for('student_add_followup', sid=student.id) }}" class="followup-form">
-      <input type="hidden" name="kind" value="nota">
-      <div class="field"><label for="note-title">Título da anotação</label><input id="note-title" name="title" maxlength="120" placeholder="Ex.: Adaptação ao treino" required></div>
-      <div class="field"><label for="note-content">Anotação</label><textarea id="note-content" name="content" rows="3" maxlength="4000" placeholder="Registre observações, dificuldades ou próximos passos..." required></textarea></div>
-      <button class="btn primary" type="submit">Salvar anotação</button>
-    </form>
-    <div class="followup-list">
-      {% for item in progress_notes %}
-      <article class="followup-item"><div class="followup-item-head"><strong>{{ item.title }}</strong><span>{{ item.created_at.strftime('%d/%m/%Y às %H:%M') }}</span></div><p>{{ item.content }}</p><form method="post" action="{{ url_for('student_delete_followup', sid=student.id, item_id=item.id) }}" onsubmit="return confirm('Excluir esta anotação?')"><button class="btn-small btn-danger" type="submit">Excluir</button></form></article>
-      {% else %}<p class="muted">Nenhuma anotação registrada ainda.</p>{% endfor %}
-    </div>
-  </article>
-</section>
-
-{% endblock %}
+{% block title %}{{ student.name }} — Perfil do aluno | Moventra{% endblock %}
 {% block content %}
 <section class="pagehead profile-head">
   <div><span class="eyebrow">PERFIL DO ALUNO</span><h1>{{ student.name }}</h1><p>Informações, sessões e acompanhamento financeiro em um só lugar.</p></div>
@@ -71,6 +39,30 @@
   {% for p in payments %}<tr><td>{{ p.due_date.strftime('%d/%m/%Y') }}</td><td>{{ p.description or 'Cobrança' }}</td><td>{{ p.amount_cents|brl_cents }}</td><td>{{ p.status }}</td><td>{% if p.paid_at %}{{ p.paid_at.strftime('%d/%m/%Y') }}{% else %}—{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>
   {% else %}<p class="muted">Nenhuma cobrança registrada para este aluno ainda.</p>{% endif %}
+</section>
+
+
+<section class="manage-card measurement-section">
+  <div class="profile-title-row"><div><h2>Medidas corporais e evolução</h2><p class="muted">Registre avaliações por data para comparar a evolução sem apagar os registros anteriores.</p></div></div>
+  <form method="post" action="{{ url_for('student_add_measurement', sid=student.id) }}" class="followup-form measurement-form">
+    <div class="measurement-fields">
+      <div class="field"><label for="measured-on">Data da avaliação *</label><input id="measured-on" name="measured_on" type="date" value="{{ now.date().isoformat() }}" required></div>
+      <div class="field"><label for="weight-kg">Peso (kg)</label><input id="weight-kg" name="weight_kg" type="number" min="0.01" max="500" step="0.01" placeholder="Ex.: 72,5"></div>
+      <div class="field"><label for="height-cm">Altura (cm)</label><input id="height-cm" name="height_cm" type="number" min="0.01" max="300" step="0.01" placeholder="Ex.: 175"></div>
+      <div class="field"><label for="waist-cm">Cintura (cm)</label><input id="waist-cm" name="waist_cm" type="number" min="0.01" max="300" step="0.01" placeholder="Ex.: 82"></div>
+      <div class="field"><label for="hip-cm">Quadril (cm)</label><input id="hip-cm" name="hip_cm" type="number" min="0.01" max="300" step="0.01" placeholder="Ex.: 98"></div>
+      <div class="field"><label for="chest-cm">Peito (cm)</label><input id="chest-cm" name="chest_cm" type="number" min="0.01" max="300" step="0.01" placeholder="Ex.: 94"></div>
+      <div class="field"><label for="body-fat">Gordura corporal (%)</label><input id="body-fat" name="body_fat_pct" type="number" min="0.01" max="100" step="0.01" placeholder="Ex.: 21,5"></div>
+    </div>
+    <div class="field"><label for="measurement-notes">Observações da avaliação</label><textarea id="measurement-notes" name="measurement_notes" rows="2" maxlength="1000" placeholder="Observações relevantes sobre esta avaliação (opcional)"></textarea></div>
+    <p class="muted measurement-hint">Informe pelo menos uma medida além da data. Use os mesmos critérios em cada avaliação para facilitar a comparação.</p>
+    <button class="btn primary" type="submit">Salvar avaliação</button>
+  </form>
+  {% if measurements %}
+  <div class="tablewrap"><table class="measurement-table"><thead><tr><th>Data</th><th>Peso</th><th>Altura</th><th>Cintura</th><th>Quadril</th><th>Peito</th><th>Gordura</th><th>Observações</th></tr></thead><tbody>
+  {% for m in measurements %}<tr><td>{{ m.measured_on.strftime('%d/%m/%Y') }}</td><td>{{ ('%.2f'|format(m.weight_kg)).replace('.', ',') ~ ' kg' if m.weight_kg is not none else '—' }}</td><td>{{ ('%.2f'|format(m.height_cm)).replace('.', ',') ~ ' cm' if m.height_cm is not none else '—' }}</td><td>{{ ('%.2f'|format(m.waist_cm)).replace('.', ',') ~ ' cm' if m.waist_cm is not none else '—' }}</td><td>{{ ('%.2f'|format(m.hip_cm)).replace('.', ',') ~ ' cm' if m.hip_cm is not none else '—' }}</td><td>{{ ('%.2f'|format(m.chest_cm)).replace('.', ',') ~ ' cm' if m.chest_cm is not none else '—' }}</td><td>{{ ('%.2f'|format(m.body_fat_pct)).replace('.', ',') ~ '%' if m.body_fat_pct is not none else '—' }}</td><td>{{ m.notes or '—' }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="muted">Nenhuma avaliação corporal registrada ainda.</p>{% endif %}
 </section>
 
 <section class="profile-grid profile-followup-grid">
