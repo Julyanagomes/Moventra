@@ -1,4 +1,3 @@
-```css
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ========================================
@@ -1484,4 +1483,11 @@ button:disabled{opacity:.65;cursor:wait}
     color: #071006 !important;
     background: #a8f22e !important;
 }
-```
+
+
+/* Correção global de contraste do tema escuro Moventra */
+body, main, section, article, aside, .wrap { color: #f2f5f3; }
+h1, h2, h3, h4, h5, h6, p, label, li, dt, dd, th, td, legend, summary { color: inherit; }
+input, select, textarea { color: #f2f5f3; }
+input::placeholder, textarea::placeholder { color: #a5b0ae; opacity: 1; }
+.stats small, .panel p, .panel h2, .quicklinks a, .pagehead h1, .pagehead p, .manage-card h2, .manage-card p, .manage-card label { color: inherit; }
