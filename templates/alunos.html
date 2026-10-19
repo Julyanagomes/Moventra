@@ -1,10 +1,69 @@
-{% extends 'base.html' %}{% block title %}Alunos — Moventra{% endblock %}{% block content %}
-<section class="pagehead"><div><span class="eyebrow">GESTÃO DE ALUNOS</span><h1>Alunos</h1><p>Cadastre e acompanhe seus alunos em um só lugar.</p></div><a class="btn outline" href="/app">Voltar ao painel</a></section>
-<section class="manage-card"><h2>Novo aluno</h2><p class="muted">Nome e e-mail são obrigatórios. No teste grátis, o limite é de 20 alunos ativos.</p><form id="student-form"><div class="formgrid"><div class="field"><label for="name">Nome completo</label><input id="name" name="name" required maxlength="120" placeholder="Nome do aluno"></div><div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" required maxlength="255" placeholder="aluno@email.com"></div><div class="field"><label for="phone">Telefone/WhatsApp</label><input id="phone" name="phone" maxlength="40" placeholder="DDD + telefone"></div></div><div class="toolbar"><button class="btn primary" type="submit">Salvar aluno</button></div></form><div id="student-message" aria-live="polite"></div></section>
-<section class="manage-card"><h2>Alunos cadastrados</h2><div id="student-list" class="tablewrap">Carregando alunos…</div></section>
+{% extends 'base.html' %}
+{% block title %}Alunos — Moventra{% endblock %}
+{% block content %}
+<section class="pagehead">
+  <div><span class="eyebrow">GESTÃO DE ALUNOS</span><h1>Alunos</h1><p>Cadastre, atualize e acompanhe seus alunos em um só lugar.</p></div>
+  <a class="btn outline" href="/app">Voltar ao painel</a>
+</section>
+<section class="manage-card">
+  <h2 id="student-form-title">Novo aluno</h2>
+  <p class="muted">Nome e e-mail são obrigatórios. No teste grátis, o limite é de 20 alunos ativos.</p>
+  <form id="student-form">
+    <input type="hidden" id="student-id" name="student-id">
+    <div class="formgrid">
+      <div class="field"><label for="name">Nome completo</label><input id="name" name="name" required maxlength="120" placeholder="Nome do aluno" autocomplete="name"></div>
+      <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" required maxlength="255" placeholder="aluno@email.com" autocomplete="email"></div>
+      <div class="field"><label for="phone">Telefone/WhatsApp</label><input id="phone" name="phone" maxlength="40" placeholder="DDD + telefone" autocomplete="tel"></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" type="submit" id="student-submit">Salvar aluno</button><button class="btn outline" type="button" id="student-cancel" hidden>Cancelar edição</button></div>
+  </form>
+  <div id="student-message" aria-live="polite"></div>
+</section>
+<section class="manage-card">
+  <div class="students-heading"><div><h2>Alunos cadastrados</h2><p class="muted" id="student-count">Carregando…</p></div><input id="student-search" class="student-search" type="search" placeholder="Buscar nome ou e-mail" aria-label="Buscar aluno"></div>
+  <div id="student-list" class="tablewrap">Carregando alunos…</div>
+</section>
 <script>
-const msg=document.getElementById('student-message');
-async function loadStudents(){const box=document.getElementById('student-list');try{const r=await fetch('/api/students');const data=await r.json();if(!r.ok)throw new Error(data.error||'Não foi possível carregar os alunos.');if(!data.length){box.innerHTML='<p class="muted">Nenhum aluno cadastrado ainda.</p>';return;}box.innerHTML='<table><thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead><tbody>'+data.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.email)}</td><td>${esc(s.phone||'—')}</td><td>${s.active?'Ativo':'Inativo'}</td></tr>`).join('')+'</tbody></table>';}catch(e){box.innerHTML='<p class="notice error">'+esc(e.message)+'</p>';}}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-document.getElementById('student-form').addEventListener('submit',async e=>{e.preventDefault();msg.innerHTML='Salvando…';const f=new FormData(e.target);try{const r=await fetch('/api/students',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:f.get('name'),email:f.get('email'),phone:f.get('phone')})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Falha ao salvar aluno.');msg.innerHTML='<p class="notice success">Aluno cadastrado com sucesso!</p>';e.target.reset();await loadStudents();}catch(err){msg.innerHTML='<p class="notice error">'+esc(err.message)+'</p>';}});loadStudents();
-</script>{% endblock %}
+const msg = document.getElementById('student-message');
+const form = document.getElementById('student-form');
+const search = document.getElementById('student-search');
+let students = [];
+function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function message(text, type='success') { msg.innerHTML = `<p class="notice ${type}">${esc(text)}</p>`; }
+function resetForm() { form.reset(); document.getElementById('student-id').value=''; document.getElementById('student-form-title').textContent='Novo aluno'; document.getElementById('student-submit').textContent='Salvar aluno'; document.getElementById('student-cancel').hidden=true; }
+function renderStudents() {
+  const box = document.getElementById('student-list');
+  const term = search.value.trim().toLowerCase();
+  const filtered = students.filter(s => `${s.name} ${s.email} ${s.phone || ''}`.toLowerCase().includes(term));
+  document.getElementById('student-count').textContent = `${students.filter(s=>s.active).length} ativos · ${students.length} no total`;
+  if (!filtered.length) { box.innerHTML = `<p class="muted">${students.length ? 'Nenhum aluno corresponde à busca.' : 'Nenhum aluno cadastrado ainda.'}</p>`; return; }
+  box.innerHTML = '<table><thead><tr><th>Aluno</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead><tbody>' + filtered.map(s => `<tr><td>${esc(s.name)}</td><td>${esc(s.email)}</td><td>${esc(s.phone || '—')}</td><td><span class="student-status ${s.active?'is-active':'is-inactive'}">${s.active?'Ativo':'Inativo'}</span></td><td><div class="student-actions"><button class="btn outline btn-small" type="button" data-edit="${s.id}">Editar</button><button class="btn ${s.active?'outline':'primary'} btn-small" type="button" data-toggle="${s.id}" data-active="${s.active}">${s.active?'Inativar':'Reativar'}</button></div></td></tr>`).join('') + '</tbody></table>';
+}
+async function loadStudents() {
+  const box = document.getElementById('student-list'); box.textContent='Carregando alunos…';
+  try { const r=await fetch('/api/students'); const data=await r.json(); if(!r.ok) throw new Error(data.error||'Não foi possível carregar os alunos.'); students=data; renderStudents(); }
+  catch(e) { box.innerHTML=`<p class="notice error">${esc(e.message)}</p>`; }
+}
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const id=document.getElementById('student-id').value;
+  const f=new FormData(form);
+  const payload={name:f.get('name'),email:f.get('email'),phone:f.get('phone')};
+  const button=document.getElementById('student-submit'); button.disabled=true; button.textContent='Salvando…';
+  try {
+    const r=await fetch(id?`/api/students/${id}`:'/api/students',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||'Não foi possível salvar o aluno.');
+    message(id?'Dados do aluno atualizados.':'Aluno cadastrado com sucesso.'); resetForm(); await loadStudents();
+  } catch(err) { message(err.message,'error'); }
+  finally { button.disabled=false; button.textContent='Salvar aluno'; }
+});
+document.getElementById('student-cancel').addEventListener('click',resetForm);
+search.addEventListener('input',renderStudents);
+document.getElementById('student-list').addEventListener('click',async e=>{
+  const edit=e.target.closest('[data-edit]'); const toggle=e.target.closest('[data-toggle]');
+  if(edit) { const s=students.find(x=>x.id===Number(edit.dataset.edit)); if(!s)return; document.getElementById('student-id').value=s.id; document.getElementById('name').value=s.name; document.getElementById('email').value=s.email; document.getElementById('phone').value=s.phone||''; document.getElementById('student-form-title').textContent='Editar aluno'; document.getElementById('student-submit').textContent='Salvar alterações'; document.getElementById('student-cancel').hidden=false; form.scrollIntoView({behavior:'smooth',block:'start'}); }
+  if(toggle) { const id=Number(toggle.dataset.toggle); const active=toggle.dataset.active!=='true'; const s=students.find(x=>x.id===id); if(!s)return; if(!confirm(`${active?'Reativar':'Inativar'} o cadastro de ${s.name}?`))return; toggle.disabled=true; try { const r=await fetch(`/api/students/${id}/status`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active})}); const d=await r.json(); if(!r.ok)throw new Error(d.error||'Não foi possível alterar o status.'); message(active?'Aluno reativado.':'Aluno inativado.'); await loadStudents(); } catch(err) { message(err.message,'error'); } }
+});
+loadStudents();
+</script>
+{% endblock %}
