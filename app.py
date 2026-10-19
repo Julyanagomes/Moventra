@@ -246,6 +246,20 @@ def mp_webhook():
 def students_page():
     return render_template('alunos.html')
 
+@app.get('/alunos/<int:sid>')
+@tenant_required
+def student_profile(sid):
+    t = current_tenant()
+    student = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    appointments = Appointment.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(Appointment.starts_at.desc()).limit(50).all()
+    payments = Payment.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(Payment.due_date.desc()).limit(50).all()
+    account = StudentAccount.query.filter_by(tenant_id=t.id, student_id=student.id).first()
+    total_paid = sum(p.amount_cents for p in payments if p.status == 'Pago')
+    total_pending = sum(p.amount_cents for p in payments if p.status == 'Pendente')
+    return render_template('aluno_perfil.html', student=student, appointments=appointments,
+                           payments=payments, account=account, total_paid=total_paid,
+                           total_pending=total_pending, now=datetime.utcnow())
+
 @app.get('/agenda')
 @tenant_required
 def agenda_page():
