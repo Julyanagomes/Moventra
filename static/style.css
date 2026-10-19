@@ -1410,3 +1410,78 @@ code {
 .btn-small{min-height:34px;padding:7px 10px;font-size:12px;border-radius:8px}
 button:disabled{opacity:.65;cursor:wait}
 @media(max-width:600px){.students-heading{align-items:stretch}.student-search{width:100%}.student-actions{min-width:130px}.manage-card{padding:16px}.tablewrap table{min-width:680px}}
+
+
+
+```css
+/* MOVENTRA — CORREÇÃO DE CONTRASTE DA PÁGINA DE ALUNOS */
+
+/* Títulos, textos e rótulos */
+.pagehead h1,
+.pagehead h2,
+.pagehead h3,
+.manage-card h1,
+.manage-card h2,
+.manage-card h3,
+.manage-card label,
+.manage-card p,
+.manage-card span,
+.manage-card strong {
+    color: #f2f5f3 !important;
+}
+
+/* Texto auxiliar e descrição */
+.pagehead p,
+.manage-card .muted {
+    color: #a5b0ae !important;
+}
+
+/* Etiquetas pequenas */
+.pagehead .eyebrow {
+    color: #a8f22e !important;
+}
+
+/* Campos de texto */
+.manage-card input:not([type="checkbox"]):not([type="radio"]),
+.manage-card select,
+.manage-card textarea {
+    background-color: #111719 !important;
+    color: #f2f5f3 !important;
+    border: 1px solid #394548 !important;
+}
+
+/* Texto de exemplo dentro dos campos */
+.manage-card input::placeholder,
+.manage-card textarea::placeholder {
+    color: #82908c !important;
+    opacity: 1;
+}
+
+/* Tabela de alunos */
+.manage-card table th {
+    color: #a5b0ae !important;
+}
+
+.manage-card table td {
+    color: #f2f5f3 !important;
+    border-color: #283235 !important;
+}
+
+/* Links e botões secundários */
+.manage-card a:not(.btn) {
+    color: #a8f22e !important;
+}
+
+.manage-card .btn.outline,
+.pagehead .btn.outline {
+    color: #f2f5f3 !important;
+    border-color: #394548 !important;
+}
+
+/* Botões principais */
+.manage-card .btn.primary,
+.manage-card button.primary {
+    color: #071006 !important;
+    background: #a8f22e !important;
+}
+```
