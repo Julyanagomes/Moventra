@@ -1539,3 +1539,17 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .btn-small { padding:6px 10px; border-radius:8px; border:1px solid #394548; background:transparent; color:#f2f5f3; }
 .btn-danger { color:#ffaaa1; border-color:#75433f; }
 @media(max-width:760px) { .profile-followup-grid { grid-template-columns:1fr; } }
+
+/* MEDIDAS CORPORAIS — tema escuro Moventra */
+.measurement-section { margin-bottom: 24px; background:#111719; border-color:#283235; color:#f2f5f3; }
+.measurement-section h2, .measurement-section label { color:#f2f5f3 !important; }
+.measurement-section .muted, .measurement-hint { color:#a5b0ae !important; }
+.measurement-fields { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.measurement-form input, .measurement-form textarea { width:100%; box-sizing:border-box; background:#080c0e !important; color:#f2f5f3 !important; border:1px solid #394548 !important; border-radius:10px; padding:12px; font:inherit; }
+.measurement-form input::placeholder, .measurement-form textarea::placeholder { color:#82908c !important; opacity:1; }
+.measurement-table { min-width:850px; }
+.measurement-table th { color:#a8f22e !important; }
+.measurement-table td { color:#f2f5f3 !important; }
+.measurement-hint { margin:0 0 12px; font-size:.9rem; }
+@media(max-width:900px) { .measurement-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { .measurement-fields { grid-template-columns:1fr; } }
