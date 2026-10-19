@@ -1,3 +1,4 @@
+```css
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ========================================
@@ -1483,11 +1484,20 @@ button:disabled{opacity:.65;cursor:wait}
     color: #071006 !important;
     background: #a8f22e !important;
 }
+```
 
-
-/* Correção global de contraste do tema escuro Moventra */
-body, main, section, article, aside, .wrap { color: #f2f5f3; }
-h1, h2, h3, h4, h5, h6, p, label, li, dt, dd, th, td, legend, summary { color: inherit; }
-input, select, textarea { color: #f2f5f3; }
-input::placeholder, textarea::placeholder { color: #a5b0ae; opacity: 1; }
-.stats small, .panel p, .panel h2, .quicklinks a, .pagehead h1, .pagehead p, .manage-card h2, .manage-card p, .manage-card label { color: inherit; }
+/* Perfil individual do aluno */
+.profile-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:18px;align-items:stretch}
+.profile-grid .manage-card{margin:0 0 18px}
+.profile-title-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.profile-title-row h2{margin-top:0;margin-bottom:6px;color:var(--ink,#f2f5f3)}
+.profile-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:22px 0}
+.profile-details div{min-width:0}
+.profile-details dt,.profile-metric span{color:var(--muted,#a5b0ae);font-size:.9rem}
+.profile-details dd{margin:5px 0 0;color:var(--ink,#f2f5f3);font-weight:600;overflow-wrap:anywhere}
+.profile-metric{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line,#283235)}
+.profile-metric strong{color:var(--ink,#f2f5f3);font-size:1.15rem}
+.profile-inline-link{display:inline-block;margin-top:18px;color:var(--green,#a8f22e);font-weight:700;text-decoration:none}
+.profile-head .toolbar{margin-top:0}
+@media(max-width:760px){.profile-grid{grid-template-columns:1fr}.profile-details{grid-template-columns:1fr 1fr}.profile-title-row .btn{width:100%;text-align:center}}
+@media(max-width:420px){.profile-details{grid-template-columns:1fr}}
