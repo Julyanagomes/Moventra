@@ -66,6 +66,15 @@ class Appointment(db.Model):
     source=db.Column(db.String(30), default='manual')
     __table_args__=(UniqueConstraint('tenant_id','student_id','starts_at',name='uq_appointment_slot'),)
 
+class StudentNote(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    tenant_id=db.Column(db.Integer, db.ForeignKey('tenant.id', ondelete='CASCADE'), nullable=False, index=True)
+    student_id=db.Column(db.Integer, db.ForeignKey('student.id', ondelete='CASCADE'), nullable=False, index=True)
+    kind=db.Column(db.String(20), nullable=False, default='nota')
+    title=db.Column(db.String(120), nullable=False)
+    content=db.Column(db.Text, nullable=False)
+    created_at=db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
 class Payment(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     tenant_id=db.Column(db.Integer, db.ForeignKey('tenant.id', ondelete='CASCADE'), nullable=False, index=True)
@@ -254,11 +263,46 @@ def student_profile(sid):
     appointments = Appointment.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(Appointment.starts_at.desc()).limit(50).all()
     payments = Payment.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(Payment.due_date.desc()).limit(50).all()
     account = StudentAccount.query.filter_by(tenant_id=t.id, student_id=student.id).first()
+    notes = StudentNote.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(StudentNote.created_at.desc()).limit(100).all()
+    goals = [item for item in notes if item.kind == 'objetivo']
+    progress_notes = [item for item in notes if item.kind == 'nota']
     total_paid = sum(p.amount_cents for p in payments if p.status == 'Pago')
     total_pending = sum(p.amount_cents for p in payments if p.status == 'Pendente')
     return render_template('aluno_perfil.html', student=student, appointments=appointments,
                            payments=payments, account=account, total_paid=total_paid,
-                           total_pending=total_pending, now=datetime.utcnow())
+                           total_pending=total_pending, goals=goals,
+                           progress_notes=progress_notes, now=datetime.utcnow())
+
+@app.post('/alunos/<int:sid>/acompanhamento')
+@tenant_required
+def student_add_followup(sid):
+    t = current_tenant()
+    student = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    kind = request.form.get('kind', 'nota').strip().lower()
+    title = request.form.get('title', '').strip()
+    content = request.form.get('content', '').strip()
+    if kind not in ('nota', 'objetivo'):
+        abort(400)
+    if not title or not content:
+        flash('Preencha o título e a descrição para salvar.','error')
+    elif len(title) > 120 or len(content) > 4000:
+        flash('O título deve ter até 120 caracteres e a descrição até 4.000.','error')
+    else:
+        db.session.add(StudentNote(tenant_id=t.id, student_id=student.id, kind=kind, title=title, content=content))
+        db.session.commit()
+        flash('Objetivo salvo com sucesso.' if kind == 'objetivo' else 'Anotação salva com sucesso.','success')
+    return redirect(url_for('student_profile', sid=student.id))
+
+@app.post('/alunos/<int:sid>/acompanhamento/<int:item_id>/excluir')
+@tenant_required
+def student_delete_followup(sid, item_id):
+    t = current_tenant()
+    student = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    item = StudentNote.query.filter_by(id=item_id, tenant_id=t.id, student_id=student.id).first_or_404()
+    db.session.delete(item)
+    db.session.commit()
+    flash('Registro de acompanhamento excluído.','success')
+    return redirect(url_for('student_profile', sid=student.id))
 
 @app.get('/agenda')
 @tenant_required
