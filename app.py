@@ -279,6 +279,16 @@ def student_profile(sid):
     account = StudentAccount.query.filter_by(tenant_id=t.id, student_id=student.id).first()
     notes = StudentNote.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(StudentNote.created_at.desc()).limit(100).all()
     measurements = StudentMeasurement.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(StudentMeasurement.measured_on.desc(), StudentMeasurement.id.desc()).limit(100).all()
+    # Gráficos usam os registros reais em ordem cronológica, sem alterar avaliações salvas.
+    measurements_chronological = list(reversed(measurements))
+    chart_measurements = [{
+        'date': item.measured_on.strftime('%d/%m/%Y'),
+        'weight': float(item.weight_kg) if item.weight_kg is not None else None,
+        'waist': float(item.waist_cm) if item.waist_cm is not None else None,
+        'hip': float(item.hip_cm) if item.hip_cm is not None else None,
+        'chest': float(item.chest_cm) if item.chest_cm is not None else None,
+        'body_fat': float(item.body_fat_pct) if item.body_fat_pct is not None else None,
+    } for item in measurements_chronological]
     goals = [item for item in notes if item.kind == 'objetivo']
     progress_notes = [item for item in notes if item.kind == 'nota']
     total_paid = sum(p.amount_cents for p in payments if p.status == 'Pago')
@@ -286,7 +296,8 @@ def student_profile(sid):
     return render_template('aluno_perfil.html', student=student, appointments=appointments,
                            payments=payments, account=account, total_paid=total_paid,
                            total_pending=total_pending, goals=goals,
-                           progress_notes=progress_notes, measurements=measurements, now=datetime.utcnow())
+                           progress_notes=progress_notes, measurements=measurements,
+                           chart_measurements=chart_measurements, now=datetime.utcnow())
 
 @app.post('/alunos/<int:sid>/medidas')
 @tenant_required
