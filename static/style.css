@@ -1596,3 +1596,22 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .report-metrics span { color: var(--muted, #a5b0ae); font-size: .9rem; }
 .report-metrics strong { color: var(--ink, #f2f5f3); font-size: 1.6rem; }
 @media print { .nav, .pagehead, #single-form, #agenda-form, #view-mode, #single-message, #agenda-message, #agenda-report .formgrid, #agenda-report button { display: none !important; } body { background: #fff !important; color: #111 !important; } .manage-card { break-inside: avoid; border: 1px solid #bbb !important; background: #fff !important; color: #111 !important; } .manage-card * { color: #111 !important; } }
+
+/* Calendário visual com nome do aluno em cada dia */
+.visual-calendar{margin-top:18px}
+.visual-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.calendar-day{min-width:0;min-height:132px;background:#111719;border:1px solid #283235;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:9px}
+.calendar-day.is-today{border-color:#a8f22e;box-shadow:inset 0 0 0 1px #a8f22e30}
+.calendar-day>header{display:flex;flex-direction:column;gap:2px;border-bottom:1px solid #283235;padding-bottom:7px}
+.calendar-day>header strong{color:#f2f5f3;text-transform:capitalize;font-size:13px}
+.calendar-day>header span,.calendar-empty{color:#82908c;font-size:11px}
+.calendar-day-events{display:flex;flex-direction:column;gap:6px}
+.calendar-event{display:flex;flex-direction:column;gap:2px;padding:7px 8px;border-radius:8px;background:#1b2426;border-left:3px solid #a8f22e;text-decoration:none;color:#f2f5f3;min-width:0}
+.calendar-event time{font-size:11px;color:#a8f22e;font-weight:700}
+.calendar-event-name{font-size:12px;font-weight:700;overflow-wrap:anywhere;color:#f2f5f3}
+.calendar-event small{font-size:10px;color:#a5b0ae;overflow-wrap:anywhere}
+.calendar-event.status-realizado{border-left-color:#72d49b}.calendar-event.status-cancelado{border-left-color:#ff8d80;opacity:.75}.calendar-event.status-falta{border-left-color:#f6c453}
+.agenda-details{margin-top:18px;border-top:1px solid #283235;padding-top:12px}.agenda-details summary{cursor:pointer;color:#a8f22e;font-weight:600;padding:8px 0}
+@media(max-width:1100px){.visual-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.visual-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.calendar-day{min-height:110px}}
+@media(max-width:420px){.visual-calendar-grid{grid-template-columns:1fr}}
