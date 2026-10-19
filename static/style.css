@@ -1588,3 +1588,11 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .btn-small{padding:7px 10px;font-size:12px;white-space:nowrap}
 #single-form .formgrid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
 @media(max-width:650px){.agenda-list-head{align-items:stretch}.agenda-filters{justify-content:space-between}.appointment-actions{min-width:0;flex-wrap:wrap}.tablewrap{overflow-x:auto}}
+
+/* Relatório de agenda: métricas e impressão */
+.report-summary { margin: 18px 0; color: var(--ink, #f2f5f3); }
+.report-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 12px; }
+.report-metrics > div { border: 1px solid var(--line, #283235); border-radius: 12px; background: var(--card, #151c1f); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.report-metrics span { color: var(--muted, #a5b0ae); font-size: .9rem; }
+.report-metrics strong { color: var(--ink, #f2f5f3); font-size: 1.6rem; }
+@media print { .nav, .pagehead, #single-form, #agenda-form, #view-mode, #single-message, #agenda-message, #agenda-report .formgrid, #agenda-report button { display: none !important; } body { background: #fff !important; color: #111 !important; } .manage-card { break-inside: avoid; border: 1px solid #bbb !important; background: #fff !important; color: #111 !important; } .manage-card * { color: #111 !important; } }
