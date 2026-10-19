@@ -1,4 +1,4 @@
-```css
+
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ========================================
@@ -1217,7 +1217,6 @@ code {
     }
 }
 
-```css
 /* CORREÇÃO DE CONTRASTE — PÁGINA DE PLANOS */
 
 .planshead h1,
@@ -1273,10 +1272,8 @@ code {
         width: 100%;
     }
 }
-```
-```
 
-```css
+
 /* CORREÇÃO DEFINITIVA DE TEXTO — MOVENTRA */
 
 /* Texto geral da página de planos */
@@ -1342,9 +1339,7 @@ code {
 .plans .plan {
     background: #111719 !important;
 }
-```
 
-```css
 /* AJUSTE FINAL — TÍTULOS E MENU DA PÁGINA DE PLANOS */
 
 .planshead h1,
@@ -1369,9 +1364,7 @@ code {
 .planshead .eyebrow {
     color: #a8f22e !important;
 }
-```
 
-```css
 /* AJUSTE FINAL — TÍTULOS E MENU DA PÁGINA DE PLANOS */
 
 .planshead h1,
@@ -1396,7 +1389,6 @@ code {
 .planshead .eyebrow {
     color: #a8f22e !important;
 }
-```
 
 /* Gestão de alunos — pesquisa, status e ações */
 .students-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
@@ -1411,9 +1403,6 @@ code {
 button:disabled{opacity:.65;cursor:wait}
 @media(max-width:600px){.students-heading{align-items:stretch}.student-search{width:100%}.student-actions{min-width:130px}.manage-card{padding:16px}.tablewrap table{min-width:680px}}
 
-
-
-```css
 /* MOVENTRA — CORREÇÃO DE CONTRASTE DA PÁGINA DE ALUNOS */
 
 /* Títulos, textos e rótulos */
@@ -1484,7 +1473,6 @@ button:disabled{opacity:.65;cursor:wait}
     color: #071006 !important;
     background: #a8f22e !important;
 }
-```
 
 /* Perfil individual do aluno */
 .profile-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:18px;align-items:stretch}
@@ -1501,3 +1489,32 @@ button:disabled{opacity:.65;cursor:wait}
 .profile-head .toolbar{margin-top:0}
 @media(max-width:760px){.profile-grid{grid-template-columns:1fr}.profile-details{grid-template-columns:1fr 1fr}.profile-title-row .btn{width:100%;text-align:center}}
 @media(max-width:420px){.profile-details{grid-template-columns:1fr}}
+
+
+/* PERFIL DO ALUNO — CONTRASTE CONSISTENTE COM O TEMA ESCURO */
+.profile-head h1,
+.profile-head h2,
+.profile-head h3,
+.profile-head p,
+.profile-head .eyebrow,
+.profile-grid .manage-card,
+.profile-grid .manage-card h1,
+.profile-grid .manage-card h2,
+.profile-grid .manage-card h3,
+.profile-grid .manage-card p,
+.profile-grid .manage-card span,
+.profile-grid .manage-card strong,
+.profile-grid .manage-card dt,
+.profile-grid .manage-card dd,
+.profile-grid .manage-card label,
+.profile-grid .manage-card a:not(.btn),
+body .manage-card h1, body .manage-card h2, body .manage-card h3,
+body .manage-card p, body .manage-card td, body .manage-card dd {
+    color: #f2f5f3;
+}
+.profile-head .eyebrow { color: #a8f22e; }
+.profile-head p, .profile-grid .profile-details dt, .profile-grid .profile-metric span { color: #a5b0ae; }
+.profile-grid .manage-card, body .manage-card { background: #111719; border-color: #283235; }
+.profile-grid table th, .profile-grid .tablewrap th { color: #a8f22e; }
+.profile-head .btn.outline, .profile-grid .btn.outline { color: #f2f5f3; border-color: #394548; }
+.profile-head .btn.primary { color: #071006; background: #a8f22e; }
