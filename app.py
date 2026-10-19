@@ -278,6 +278,51 @@ def students_create():
     if count >= limite_alunos: return jsonify(error=f'Limite de {limite_alunos} alunos ativos atingido para sua conta.'),402
     s=Student(tenant_id=t.id,name=name,email=email,phone=d.get('phone','').strip()); db.session.add(s); db.session.commit(); return jsonify(id=s.id),201
 
+@app.put('/api/students/<int:sid>')
+@tenant_required
+def students_update(sid):
+    t = current_tenant()
+    s = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    d = request.get_json(silent=True) or {}
+    name = str(d.get('name', '')).strip()
+    email = str(d.get('email', '')).strip().lower()
+    phone = str(d.get('phone', '')).strip()
+    if not name or len(name) > 120:
+        return jsonify(error='Informe um nome válido com até 120 caracteres.'), 400
+    if not email or '@' not in email or len(email) > 255:
+        return jsonify(error='Informe um e-mail válido.'), 400
+    duplicate = Student.query.filter(
+        Student.tenant_id == t.id,
+        Student.email == email,
+        Student.id != s.id
+    ).first()
+    if duplicate:
+        return jsonify(error='Outro aluno já usa este e-mail.'), 400
+    s.name, s.email, s.phone = name, email, phone[:40]
+    # Mantém o e-mail do acesso do aluno sincronizado, se existir.
+    account = StudentAccount.query.filter_by(tenant_id=t.id, student_id=s.id).first()
+    if account:
+        account.email = email
+    db.session.commit()
+    return jsonify(id=s.id, name=s.name, email=s.email, phone=s.phone, active=s.active)
+
+@app.patch('/api/students/<int:sid>/status')
+@tenant_required
+def students_update_status(sid):
+    t = current_tenant()
+    s = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    d = request.get_json(silent=True) or {}
+    if not isinstance(d.get('active'), bool):
+        return jsonify(error='Informe o novo status do aluno.'), 400
+    if d['active'] and not s.active:
+        count = Student.query.filter_by(tenant_id=t.id, active=True).count()
+        limit = 20 if t.subscription_status == 'trial' else PLANS.get(t.plan, PLANS['essencial'])['students']
+        if count >= limit:
+            return jsonify(error=f'Limite de {limit} alunos ativos atingido para sua conta.'), 402
+    s.active = d['active']
+    db.session.commit()
+    return jsonify(id=s.id, active=s.active)
+
 @app.post('/api/students/<int:sid>/account')
 @tenant_required
 def create_student_account(sid):
