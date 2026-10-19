@@ -1518,3 +1518,24 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .profile-grid table th, .profile-grid .tablewrap th { color: #a8f22e; }
 .profile-head .btn.outline, .profile-grid .btn.outline { color: #f2f5f3; border-color: #394548; }
 .profile-head .btn.primary { color: #071006; background: #a8f22e; }
+
+/* ACOMPANHAMENTO DO ALUNO — objetivos e anotações */
+.profile-followup-grid { align-items:start; }
+.profile-followup-grid .manage-card { min-width:0; }
+.followup-form { display:grid; gap:12px; margin:16px 0 22px; }
+.followup-form .field label { color:#f2f5f3 !important; }
+.followup-form input, .followup-form textarea {
+  width:100%; box-sizing:border-box; background:#080c0e !important; color:#f2f5f3 !important;
+  border:1px solid #394548 !important; border-radius:10px; padding:12px; font:inherit;
+}
+.followup-form input::placeholder, .followup-form textarea::placeholder { color:#82908c !important; opacity:1; }
+.followup-form button { justify-self:start; }
+.followup-list { display:grid; gap:12px; }
+.followup-item { border:1px solid #283235; background:#151c1f; border-radius:12px; padding:14px; min-width:0; }
+.followup-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+.followup-item-head strong { color:#f2f5f3 !important; overflow-wrap:anywhere; }
+.followup-item-head span { color:#a5b0ae !important; font-size:.85rem; }
+.followup-item p { color:#dce3df !important; white-space:pre-wrap; overflow-wrap:anywhere; }
+.btn-small { padding:6px 10px; border-radius:8px; border:1px solid #394548; background:transparent; color:#f2f5f3; }
+.btn-danger { color:#ffaaa1; border-color:#75433f; }
+@media(max-width:760px) { .profile-followup-grid { grid-template-columns:1fr; } }
