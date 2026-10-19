@@ -1,6 +1,6 @@
 import os, secrets, hmac, hashlib, logging
 from datetime import datetime, date, timedelta
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from functools import wraps
 from urllib.parse import quote
 import requests
@@ -74,6 +74,20 @@ class StudentNote(db.Model):
     title=db.Column(db.String(120), nullable=False)
     content=db.Column(db.Text, nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+class StudentMeasurement(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    tenant_id=db.Column(db.Integer, db.ForeignKey('tenant.id', ondelete='CASCADE'), nullable=False, index=True)
+    student_id=db.Column(db.Integer, db.ForeignKey('student.id', ondelete='CASCADE'), nullable=False, index=True)
+    measured_on=db.Column(db.Date, nullable=False, index=True)
+    weight_kg=db.Column(db.Numeric(5,2))
+    height_cm=db.Column(db.Numeric(5,2))
+    waist_cm=db.Column(db.Numeric(5,2))
+    hip_cm=db.Column(db.Numeric(5,2))
+    chest_cm=db.Column(db.Numeric(5,2))
+    body_fat_pct=db.Column(db.Numeric(5,2))
+    notes=db.Column(db.String(1000), default='')
+    created_at=db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 class Payment(db.Model):
     id=db.Column(db.Integer, primary_key=True)
@@ -264,6 +278,7 @@ def student_profile(sid):
     payments = Payment.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(Payment.due_date.desc()).limit(50).all()
     account = StudentAccount.query.filter_by(tenant_id=t.id, student_id=student.id).first()
     notes = StudentNote.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(StudentNote.created_at.desc()).limit(100).all()
+    measurements = StudentMeasurement.query.filter_by(tenant_id=t.id, student_id=student.id).order_by(StudentMeasurement.measured_on.desc(), StudentMeasurement.id.desc()).limit(100).all()
     goals = [item for item in notes if item.kind == 'objetivo']
     progress_notes = [item for item in notes if item.kind == 'nota']
     total_paid = sum(p.amount_cents for p in payments if p.status == 'Pago')
@@ -271,7 +286,50 @@ def student_profile(sid):
     return render_template('aluno_perfil.html', student=student, appointments=appointments,
                            payments=payments, account=account, total_paid=total_paid,
                            total_pending=total_pending, goals=goals,
-                           progress_notes=progress_notes, now=datetime.utcnow())
+                           progress_notes=progress_notes, measurements=measurements, now=datetime.utcnow())
+
+@app.post('/alunos/<int:sid>/medidas')
+@tenant_required
+def student_add_measurement(sid):
+    t = current_tenant()
+    student = Student.query.filter_by(id=sid, tenant_id=t.id).first_or_404()
+    def optional_decimal(field, label, maximum):
+        raw = request.form.get(field, '').strip().replace(',', '.')
+        if not raw:
+            return None
+        try:
+            value = Decimal(raw)
+            if not value.is_finite() or value <= 0 or value > Decimal(str(maximum)):
+                raise ValueError
+            return value.quantize(Decimal('0.01'))
+        except (InvalidOperation, ValueError):
+            raise ValueError(f'Confira o valor informado em {label}.')
+    try:
+        measured_on = date.fromisoformat(request.form.get('measured_on', '').strip())
+        values = {
+            'weight_kg': optional_decimal('weight_kg', 'peso', 500),
+            'height_cm': optional_decimal('height_cm', 'altura', 300),
+            'waist_cm': optional_decimal('waist_cm', 'cintura', 300),
+            'hip_cm': optional_decimal('hip_cm', 'quadril', 300),
+            'chest_cm': optional_decimal('chest_cm', 'peito', 300),
+            'body_fat_pct': optional_decimal('body_fat_pct', 'percentual de gordura', 100),
+        }
+    except (ValueError, TypeError):
+        flash('Informe uma data válida e confira as medidas.','error')
+        return redirect(url_for('student_profile', sid=student.id))
+    if not any(v is not None for v in values.values()):
+        flash('Informe pelo menos uma medida para salvar a avaliação.','error')
+        return redirect(url_for('student_profile', sid=student.id))
+    notes = request.form.get('measurement_notes', '').strip()
+    if len(notes) > 1000:
+        flash('As observações devem ter até 1.000 caracteres.','error')
+        return redirect(url_for('student_profile', sid=student.id))
+    measurement = StudentMeasurement(tenant_id=t.id, student_id=student.id,
+                                    measured_on=measured_on, notes=notes, **values)
+    db.session.add(measurement)
+    db.session.commit()
+    flash('Avaliação corporal salva com sucesso.','success')
+    return redirect(url_for('student_profile', sid=student.id))
 
 @app.post('/alunos/<int:sid>/acompanhamento')
 @tenant_required
