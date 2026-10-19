@@ -474,6 +474,46 @@ def appointments_list():
         except ValueError:return jsonify(error='Data final inválida.'),400
     return jsonify([{'id':a.id,'student_id':a.student_id,'student_name':a.student.name,'starts_at':a.starts_at.isoformat(timespec='minutes'),'modality':a.modality,'status':a.status} for a in q.order_by(Appointment.starts_at).limit(1000).all()])
 
+@app.post('/api/appointments')
+@tenant_required
+def appointment_create():
+    t = current_tenant()
+    d = request.get_json(silent=True) or {}
+    try:
+        sid = int(d.get('student_id'))
+        starts_at = datetime.fromisoformat(str(d.get('starts_at', '')).strip())
+    except (TypeError, ValueError):
+        return jsonify(error='Informe aluno e data/horário válidos.'), 400
+    student = Student.query.filter_by(id=sid, tenant_id=t.id).first()
+    if not student or not student.active:
+        return jsonify(error='Selecione um aluno ativo desta conta.'), 400
+    modality = str(d.get('modality') or 'Treino').strip()[:100] or 'Treino'
+    # O profissional não pode atender dois alunos no mesmo horário.
+    occupied = Appointment.query.filter_by(tenant_id=t.id, starts_at=starts_at).filter(Appointment.status.notin_(['Cancelado', 'Falta'])).first()
+    if occupied:
+        return jsonify(error='Este horário já está ocupado por outra sessão.'), 409
+    duplicate = Appointment.query.filter_by(tenant_id=t.id, student_id=sid, starts_at=starts_at).first()
+    if duplicate:
+        return jsonify(error='Este aluno já possui uma sessão nesse horário.'), 409
+    item = Appointment(tenant_id=t.id, student_id=sid, starts_at=starts_at, modality=modality, status='Agendado', source='manual')
+    db.session.add(item)
+    db.session.commit()
+    return jsonify(id=item.id, message='Sessão agendada.'), 201
+
+@app.patch('/api/appointments/<int:appointment_id>/status')
+@tenant_required
+def appointment_update_status(appointment_id):
+    t = current_tenant()
+    item = Appointment.query.filter_by(id=appointment_id, tenant_id=t.id).first_or_404()
+    d = request.get_json(silent=True) or {}
+    status = str(d.get('status', '')).strip()
+    allowed = {'Agendado', 'Realizado', 'Cancelado', 'Falta'}
+    if status not in allowed:
+        return jsonify(error='Status inválido.'), 400
+    item.status = status
+    db.session.commit()
+    return jsonify(id=item.id, status=item.status)
+
 @app.post('/api/appointments/generate')
 @tenant_required
 def generate_appointments():
@@ -489,8 +529,10 @@ def generate_appointments():
     while day<=end:
         if day.weekday() in weekdays:
             stamp=datetime.combine(day,datetime.strptime(tm,'%H:%M').time())
-            if not Appointment.query.filter_by(tenant_id=t.id,student_id=sid,starts_at=stamp).first():
-                db.session.add(Appointment(tenant_id=t.id,student_id=sid,starts_at=stamp,modality=d.get('modality','Treino'),source='recorrente')); made+=1
+            same_student = Appointment.query.filter_by(tenant_id=t.id, student_id=sid, starts_at=stamp).first()
+            occupied = Appointment.query.filter_by(tenant_id=t.id, starts_at=stamp).filter(Appointment.status.notin_(['Cancelado', 'Falta'])).first()
+            if not same_student and not occupied:
+                db.session.add(Appointment(tenant_id=t.id,student_id=sid,starts_at=stamp,modality=str(d.get('modality','Treino'))[:100],source='recorrente')); made+=1
             else:dup+=1
         day+=timedelta(days=1)
     db.session.commit(); return jsonify(created=made,skipped_duplicates=dup),201
