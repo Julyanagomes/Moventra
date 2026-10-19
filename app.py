@@ -464,15 +464,41 @@ def create_student_account(sid):
 @app.get('/api/appointments')
 @tenant_required
 def appointments_list():
-    t=current_tenant(); start=request.args.get('start'); end=request.args.get('end')
-    q=Appointment.query.filter_by(tenant_id=t.id).join(Student)
+    t = current_tenant()
+    start = request.args.get('start')
+    end = request.args.get('end')
+    # Use explicit columns in the tenant filter: both Student and Appointment
+    # have tenant_id, so filter_by after a join can target the wrong table.
+    q = Appointment.query.join(Student, Appointment.student_id == Student.id).filter(
+        Appointment.tenant_id == t.id,
+        Student.tenant_id == t.id,
+    )
     if start:
-        try:q=q.filter(Appointment.starts_at>=datetime.fromisoformat(start))
-        except ValueError:return jsonify(error='Data inicial inválida.'),400
+        try:
+            start_dt = datetime.fromisoformat(start)
+        except (TypeError, ValueError):
+            return jsonify(error='Data inicial inválida.'), 400
+        q = q.filter(Appointment.starts_at >= start_dt)
     if end:
-        try:q=q.filter(Appointment.starts_at<datetime.fromisoformat(end))
-        except ValueError:return jsonify(error='Data final inválida.'),400
-    return jsonify([{'id':a.id,'student_id':a.student_id,'student_name':a.student.name,'starts_at':a.starts_at.isoformat(timespec='minutes'),'modality':a.modality,'status':a.status} for a in q.order_by(Appointment.starts_at).limit(1000).all()])
+        try:
+            end_dt = datetime.fromisoformat(end)
+        except (TypeError, ValueError):
+            return jsonify(error='Data final inválida.'), 400
+        q = q.filter(Appointment.starts_at < end_dt)
+    # Appointment não declara relacionamento ORM chamado `student`.
+    # Selecionamos explicitamente o nome via JOIN para evitar AttributeError.
+    rows = q.with_entities(Appointment, Student.name).order_by(Appointment.starts_at).limit(1000).all()
+    return jsonify([
+        {
+            'id': appointment.id,
+            'student_id': appointment.student_id,
+            'student_name': student_name,
+            'starts_at': appointment.starts_at.isoformat(timespec='minutes'),
+            'modality': appointment.modality,
+            'status': appointment.status,
+        }
+        for appointment, student_name in rows
+    ])
 
 @app.post('/api/appointments')
 @tenant_required
