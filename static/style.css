@@ -1572,3 +1572,19 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .progress-delta-card small { color:#a5b0ae; }
 @media(max-width:800px){.progress-chart-grid{grid-template-columns:1fr}.progress-delta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.progress-delta-grid{grid-template-columns:1fr}}
+
+/* Agenda inteligente — Moventra */
+.agenda-list-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+.agenda-list-head h2{margin-bottom:4px}
+.agenda-filters{display:flex;align-items:center;gap:10px}
+.agenda-filters label{color:var(--muted,#a5b0ae);font-weight:600}
+.agenda-filters select,.appointment-actions select{background:#111719;color:#f2f5f3;border:1px solid #394548;border-radius:10px;padding:9px 12px;max-width:100%}
+.appointment-status{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;background:#263034;color:#e8eeeb;font-size:12px;font-weight:700;white-space:nowrap}
+.appointment-status.status-realizado{background:#213b24;color:#baf58a}
+.appointment-status.status-cancelado,.appointment-status.status-falta{background:#402725;color:#ffb1a7}
+.appointment-status.status-agendado{background:#253747;color:#b8dcff}
+.appointment-actions{display:flex;gap:8px;align-items:center;min-width:190px}
+.appointment-actions select{min-width:112px;font-size:13px;padding:7px}
+.btn-small{padding:7px 10px;font-size:12px;white-space:nowrap}
+#single-form .formgrid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+@media(max-width:650px){.agenda-list-head{align-items:stretch}.agenda-filters{justify-content:space-between}.appointment-actions{min-width:0;flex-wrap:wrap}.tablewrap{overflow-x:auto}}
