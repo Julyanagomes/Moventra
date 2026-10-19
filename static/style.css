@@ -1553,3 +1553,22 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .measurement-hint { margin:0 0 12px; font-size:.9rem; }
 @media(max-width:900px) { .measurement-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:480px) { .measurement-fields { grid-template-columns:1fr; } }
+
+
+/* GRÁFICOS DE EVOLUÇÃO — tema escuro Moventra */
+.progress-chart-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:18px 0; }
+.progress-chart-card { min-width:0; padding:16px; border:1px solid #283235; border-radius:14px; background:#151c1f; color:#f2f5f3; }
+.progress-chart-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+.progress-chart-heading h3 { margin:0 0 4px; color:#f2f5f3; font-size:1.02rem; }
+.progress-chart-heading p { margin:0; color:#a5b0ae; font-size:.9rem; }
+.progress-chart { display:block; width:100%; max-width:100%; margin-top:12px; }
+.chart-select-label { display:grid; gap:4px; color:#a5b0ae; font-size:.82rem; }
+.chart-select-label select { background:#080c0e; color:#f2f5f3; border:1px solid #394548; border-radius:8px; padding:8px 10px; font:inherit; }
+.chart-empty { color:#a5b0ae; font-size:.9rem; }
+.progress-delta-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:16px 0 20px; }
+.progress-delta-card { display:grid; gap:5px; padding:14px; background:#111719; border:1px solid #283235; border-radius:12px; min-width:0; }
+.progress-delta-card span { color:#a5b0ae; font-size:.84rem; }
+.progress-delta-card strong { color:#a8f22e; font-size:1.25rem; overflow-wrap:anywhere; }
+.progress-delta-card small { color:#a5b0ae; }
+@media(max-width:800px){.progress-chart-grid{grid-template-columns:1fr}.progress-delta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.progress-delta-grid{grid-template-columns:1fr}}
