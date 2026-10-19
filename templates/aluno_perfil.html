@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.name }} — Perfil do aluno | Moventra{% endblock %}
+{% block content %}
+<section class="pagehead profile-head">
+  <div><span class="eyebrow">PERFIL DO ALUNO</span><h1>{{ student.name }}</h1><p>Informações, sessões e acompanhamento financeiro em um só lugar.</p></div>
+  <div class="toolbar"><a class="btn outline" href="/alunos">Voltar aos alunos</a><a class="btn primary" href="/agenda">Abrir agenda</a></div>
+</section>
+<section class="profile-grid">
+  <article class="manage-card profile-main">
+    <div class="profile-title-row"><h2>Dados do aluno</h2><span class="student-status {{ 'is-active' if student.active else 'is-inactive' }}">{{ 'Ativo' if student.active else 'Inativo' }}</span></div>
+    <dl class="profile-details">
+      <div><dt>E-mail</dt><dd>{{ student.email }}</dd></div>
+      <div><dt>Telefone / WhatsApp</dt><dd>{{ student.phone or 'Não informado' }}</dd></div>
+      <div><dt>Cadastro</dt><dd>{{ 'Ativo' if student.active else 'Inativo' }}</dd></div>
+      <div><dt>Portal do aluno</dt><dd>{{ 'Acesso criado' if account else 'Ainda não configurado' }}</dd></div>
+    </dl>
+    <div class="toolbar"><a class="btn outline" href="/alunos">Editar dados na lista de alunos</a></div>
+  </article>
+  <article class="manage-card profile-summary">
+    <h2>Resumo financeiro</h2>
+    <div class="profile-metric"><span>Total pago</span><strong>{{ total_paid|brl_cents }}</strong></div>
+    <div class="profile-metric"><span>Em aberto</span><strong>{{ total_pending|brl_cents }}</strong></div>
+    <div class="profile-metric"><span>Cobranças registradas</span><strong>{{ payments|length }}</strong></div>
+    <a class="profile-inline-link" href="/cobrancas">Ir para cobranças →</a>
+  </article>
+</section>
+<section class="manage-card">
+  <div class="profile-title-row"><div><h2>Histórico de sessões</h2><p class="muted">Últimas sessões registradas, da mais recente para a mais antiga.</p></div><a class="btn outline" href="/agenda">Ver agenda</a></div>
+  {% if appointments %}
+  <div class="tablewrap"><table><thead><tr><th>Data e horário</th><th>Modalidade</th><th>Status</th></tr></thead><tbody>
+  {% for a in appointments %}<tr><td>{{ a.starts_at.strftime('%d/%m/%Y às %H:%M') }}</td><td>{{ a.modality or 'Treino' }}</td><td>{{ a.status }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="muted">Nenhuma sessão registrada para este aluno ainda.</p>{% endif %}
+</section>
+<section class="manage-card">
+  <div class="profile-title-row"><div><h2>Histórico financeiro</h2><p class="muted">Cobranças associadas a este aluno.</p></div><a class="btn outline" href="/cobrancas">Ver cobranças</a></div>
+  {% if payments %}
+  <div class="tablewrap"><table><thead><tr><th>Vencimento</th><th>Descrição</th><th>Valor</th><th>Status</th><th>Pagamento</th></tr></thead><tbody>
+  {% for p in payments %}<tr><td>{{ p.due_date.strftime('%d/%m/%Y') }}</td><td>{{ p.description or 'Cobrança' }}</td><td>{{ p.amount_cents|brl_cents }}</td><td>{{ p.status }}</td><td>{% if p.paid_at %}{{ p.paid_at.strftime('%d/%m/%Y') }}{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="muted">Nenhuma cobrança registrada para este aluno ainda.</p>{% endif %}
+</section>
+{% endblock %}
