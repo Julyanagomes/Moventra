@@ -1615,3 +1615,17 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 @media(max-width:1100px){.visual-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:700px){.visual-calendar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.calendar-day{min-height:110px}}
 @media(max-width:420px){.visual-calendar-grid{grid-template-columns:1fr}}
+
+
+/* Financeiro: indicadores e ações de cobrança */
+.finance-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}
+.finance-stat{background:var(--card,#151c1f);border:1px solid var(--line,#283235);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.finance-stat span{color:var(--muted,#a5b0ae);font-size:14px}
+.finance-stat strong{color:var(--ink,#f2f5f3);font-size:clamp(20px,2.5vw,30px);overflow-wrap:anywhere}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:16px}
+.section-heading h2{margin-bottom:4px}.payment-filter-label{display:flex;align-items:center;gap:8px;color:var(--muted,#a5b0ae)}
+.payment-filter-label select{background:var(--white,#111719);color:var(--ink,#f2f5f3);border:1px solid var(--line,#283235);border-radius:10px;padding:10px}
+.payment-status{display:inline-block;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+.payment-status.is-paid{background:#183923;color:#baf58a}.payment-status.is-pending{background:#33301a;color:#f6df76}.payment-status.is-overdue{background:#442521;color:#ff9c90}
+.payment-actions{white-space:nowrap}.btn-small{padding:7px 10px;font-size:12px;margin:2px}
+@media(max-width:760px){.finance-summary{grid-template-columns:1fr}.section-heading{align-items:flex-start;flex-direction:column}.payment-actions{white-space:normal}}
