@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Planos — Moventra{% endblock %}
+{% block content %}
+<section class="planshead">
+  <span class="eyebrow">SEU NEGÓCIO, NO SEU RITMO</span>
+  <h1>Escolha seu plano</h1>
+  <p>Você tem <strong>14 dias grátis para experimentar</strong>. Selecione um plano e escolha a cobrança mensal ou anual. O acesso pago só é ativado após a confirmação do Mercado Pago.</p>
+</section>
+<div class="billing-note"><strong>Plano anual:</strong> pague o equivalente a 10 mensalidades e economize 2 meses por ano.</div>
+<section class="plans">
+{% for key, p in plans.items() %}
+  <article class="plan {% if key == 'profissional' %}featured{% endif %}">
+    {% if key == 'profissional' %}<span class="popular">MAIS ESCOLHIDO</span>{% endif %}
+    <h2>{{ p.name }}</h2>
+    <p>{{ p.features }}</p>
+    <div class="limit">Até {{ p.students }} alunos ativos</div>
+    <div class="billing-option">
+      <div class="price">R$ {{ '%.2f'|format(p.price)|replace('.', ',') }} <small>/mês</small></div>
+      <form method="post" action="{{ url_for('subscribe', plan_key=key) }}">
+        <input type="hidden" name="cycle" value="monthly">
+        <button class="btn outline" type="submit">Assinar mensalmente</button>
+      </form>
+    </div>
+    <div class="billing-option annual-option">
+      <div class="price">R$ {{ '%.2f'|format(p.annual_price)|replace('.', ',') }} <small>/ano</small></div>
+      <p class="muted">Equivale a R$ {{ '%.2f'|format(p.annual_price / 12)|replace('.', ',') }}/mês</p>
+      <form method="post" action="{{ url_for('subscribe', plan_key=key) }}">
+        <input type="hidden" name="cycle" value="annual">
+        <button class="btn {% if key == 'profissional' %}primary{% else %}outline{% endif %}" type="submit">Assinar anualmente</button>
+      </form>
+    </div>
+  </article>
+{% endfor %}
+</section>
+<p class="fineprint">O teste grátis dura 14 dias a partir do cadastro. A assinatura é gerenciada pelo Mercado Pago. Não compartilhe seu token de acesso nem publique o arquivo .env.</p>
+<style>
+.billing-note{margin:18px auto 26px;padding:14px 18px;max-width:760px;border:1px solid #43552b;border-radius:12px;background:#141d14;color:#eaf5e4;text-align:center}.billing-option{border-top:1px solid #2b3538;padding-top:15px;margin-top:15px}.billing-option .price{font-size:1.55rem;font-weight:800}.billing-option .price small{font-size:.85rem;font-weight:500;color:#a5b0ae}.billing-option form{margin-top:10px}.billing-option .btn{width:100%;text-align:center}.annual-option{padding-bottom:3px}.plan h2{margin-top:8px}.planshead h1{margin-bottom:8px}
+</style>
+{% endblock %}
