@@ -566,8 +566,31 @@ def generate_appointments():
 @app.get('/api/payments')
 @tenant_required
 def payments_list():
-    t=current_tenant(); rows=Payment.query.filter_by(tenant_id=t.id).order_by(Payment.due_date.desc()).limit(500).all()
-    return jsonify([{'id':p.id,'student_name':p.student.name,'student_phone':p.student.phone,'amount_cents':p.amount_cents,'due_date':p.due_date.isoformat(),'description':p.description,'status':p.status,'paid_at':p.paid_at.isoformat() if p.paid_at else None,'checkout_url':p.checkout_url} for p in rows])
+    t = current_tenant()
+    # Payment não declara relacionamento ORM `student`; faça JOIN explícito
+    # para obter nome e telefone sem gerar AttributeError/HTML 500.
+    rows = (
+        db.session.query(Payment, Student.name, Student.phone)
+        .join(Student, Payment.student_id == Student.id)
+        .filter(Payment.tenant_id == t.id, Student.tenant_id == t.id)
+        .order_by(Payment.due_date.desc())
+        .limit(500)
+        .all()
+    )
+    return jsonify([
+        {
+            'id': payment.id,
+            'student_name': student_name,
+            'student_phone': student_phone,
+            'amount_cents': payment.amount_cents,
+            'due_date': payment.due_date.isoformat(),
+            'description': payment.description,
+            'status': payment.status,
+            'paid_at': payment.paid_at.isoformat() if payment.paid_at else None,
+            'checkout_url': payment.checkout_url,
+        }
+        for payment, student_name, student_phone in rows
+    ])
 
 @app.patch('/api/payments/<int:payment_id>')
 @tenant_required
