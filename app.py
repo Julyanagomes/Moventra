@@ -567,7 +567,22 @@ def generate_appointments():
 @tenant_required
 def payments_list():
     t=current_tenant(); rows=Payment.query.filter_by(tenant_id=t.id).order_by(Payment.due_date.desc()).limit(500).all()
-    return jsonify([{'id':p.id,'student_name':p.student.name,'student_phone':p.student.phone,'amount_cents':p.amount_cents,'due_date':p.due_date.isoformat(),'description':p.description,'status':p.status,'checkout_url':p.checkout_url} for p in rows])
+    return jsonify([{'id':p.id,'student_name':p.student.name,'student_phone':p.student.phone,'amount_cents':p.amount_cents,'due_date':p.due_date.isoformat(),'description':p.description,'status':p.status,'paid_at':p.paid_at.isoformat() if p.paid_at else None,'checkout_url':p.checkout_url} for p in rows])
+
+@app.patch('/api/payments/<int:payment_id>')
+@tenant_required
+def payment_update_status(payment_id):
+    t=current_tenant(); d=request.get_json(silent=True) or {}
+    status=str(d.get('status','')).strip()
+    if status not in ('Pago','Pendente'):
+        return jsonify(error='Status inválido. Use Pago ou Pendente.'),400
+    p=Payment.query.filter_by(id=payment_id,tenant_id=t.id).first()
+    if not p:
+        return jsonify(error='Cobrança não encontrada nesta conta.'),404
+    p.status=status
+    p.paid_at=datetime.utcnow() if status=='Pago' else None
+    db.session.commit()
+    return jsonify(id=p.id,status=p.status,paid_at=p.paid_at.isoformat() if p.paid_at else None)
 
 @app.post('/api/payments')
 @tenant_required
