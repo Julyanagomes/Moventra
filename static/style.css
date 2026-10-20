@@ -1629,3 +1629,6 @@ body .manage-card p, body .manage-card td, body .manage-card dd {
 .payment-status.is-paid{background:#183923;color:#baf58a}.payment-status.is-pending{background:#33301a;color:#f6df76}.payment-status.is-overdue{background:#442521;color:#ff9c90}
 .payment-actions{white-space:nowrap}.btn-small{padding:7px 10px;font-size:12px;margin:2px}
 @media(max-width:760px){.finance-summary{grid-template-columns:1fr}.section-heading{align-items:flex-start;flex-direction:column}.payment-actions{white-space:normal}}
+
+/* Planos e periodicidade de assinatura */
+.billing-note{margin:18px auto 26px;padding:14px 18px;max-width:760px;border:1px solid #43552b;border-radius:12px;background:#141d14;color:#eaf5e4;text-align:center}.billing-option{border-top:1px solid #2b3538;padding-top:15px;margin-top:15px}.billing-option .price{font-size:1.55rem;font-weight:800}.billing-option .price small{font-size:.85rem;font-weight:500;color:#a5b0ae}.billing-option form{margin-top:10px}.billing-option .btn{width:100%;text-align:center}.annual-option{padding-bottom:3px}.plan h2{margin-top:8px}.planshead h1{margin-bottom:8px}
