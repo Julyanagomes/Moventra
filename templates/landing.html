@@ -5,7 +5,7 @@
 <section id="planos" class="planshead">
     <span class="eyebrow">PLANOS CLAROS</span>
     <h2>Escolha o ritmo do seu negócio.</h2>
-    <p>Comece com o essencial e evolua quando precisar.</p>
+    <p>Experimente grátis por 14 dias. Escolha cobrança mensal ou anual ao criar sua conta.</p>
 </section>
 
 <section class="plans">
@@ -21,6 +21,7 @@
             R$ {{ "%.2f"|format(p.price)|replace(".", ",") }}
             <small>/mês</small>
         </div>
+        <p class="muted">Plano anual: R$ {{ '%.2f'|format(p.annual_price)|replace('.', ',') }}/ano (2 meses de economia)</p>
 
         <p>{{ p.features }}</p>
 
@@ -39,8 +40,6 @@
 </section>
 
 <p class="fineprint">
-    Os preços são propostas iniciais. O acesso pago é ativado após confirmação
-    do pagamento pelo Mercado Pago. A plataforma ainda precisa ser configurada
-    e publicada pelo responsável pela conta.
+    Todos os planos incluem 14 dias grátis. O acesso pago é ativado após confirmação da assinatura pelo Mercado Pago.
 </p>
 {% endblock %}
