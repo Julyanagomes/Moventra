@@ -21,9 +21,9 @@ app.config['SESSION_COOKIE_SECURE'] = os.getenv('APP_BASE_URL', '').startswith('
 db = SQLAlchemy(app)
 MP_API = 'https://api.mercadopago.com'
 PLANS = {
-    'essencial': {'name':'Essencial','price':Decimal('39.90'),'students':50,'features':'Agenda, alunos, cobranças e portal do aluno'},
-    'profissional': {'name':'Profissional','price':Decimal('69.90'),'students':200,'features':'Todos os recursos do Essencial e agenda recorrente'},
-    'estudio': {'name':'Estúdio','price':Decimal('119.90'),'students':1000,'features':'Maior capacidade para equipes e estúdios'},
+    'essencial': {'name':'Essencial','price':Decimal('39.90'),'annual_price':Decimal('399.00'),'students':50,'features':'Agenda, alunos, cobranças e portal do aluno'},
+    'profissional': {'name':'Profissional','price':Decimal('69.90'),'annual_price':Decimal('699.00'),'students':200,'features':'Todos os recursos do Essencial e agenda recorrente'},
+    'estudio': {'name':'Estúdio','price':Decimal('119.90'),'annual_price':Decimal('1199.00'),'students':1000,'features':'Maior capacidade para equipes e estúdios'},
 }
 
 class Tenant(db.Model):
@@ -207,10 +207,15 @@ def subscribe(plan_key):
         flash('Configure MP_ACCESS_TOKEN e APP_BASE_URL HTTPS no servidor antes de ativar pagamentos reais.','error')
         return redirect(url_for('choose_plan'))
     p=PLANS[plan_key]
-    payload={'reason':'Moventra - Plano '+p['name'], 'payer_email':t.email,
-      'external_reference':f'moventra-tenant-{t.id}-{plan_key}',
+    cycle=(request.form.get('cycle') or 'monthly').strip().lower()
+    if cycle not in ('monthly','annual'):
+        flash('Escolha uma periodicidade válida para a assinatura.','error')
+        return redirect(url_for('choose_plan'))
+    amount=p['annual_price'] if cycle == 'annual' else p['price']
+    payload={'reason':'Moventra - Plano '+p['name']+(' anual' if cycle == 'annual' else ' mensal'), 'payer_email':t.email,
+      'external_reference':f'moventra-tenant-{t.id}-{plan_key}-{cycle}',
       'back_url':base+'/assinatura/retorno', 'notification_url':base+'/webhooks/mercadopago',
-      'auto_recurring':{'frequency':1,'frequency_type':'months','transaction_amount':float(p['price']),'currency_id':'BRL'},
+      'auto_recurring':{'frequency':12 if cycle == 'annual' else 1,'frequency_type':'months','transaction_amount':float(amount),'currency_id':'BRL'},
       'status':'pending'}
     try:
         # /preapproval cria uma assinatura recorrente; não usar checkout/preferences para mensalidade SaaS.
@@ -237,8 +242,9 @@ def mp_webhook():
         if typ in ('subscription_preapproval','preapproval'):
             r=requests.get(f'{MP_API}/preapproval/{item_id}',headers=mp_headers(),timeout=20); r.raise_for_status(); sub=r.json()
             ext=sub.get('external_reference','')
-            if ext.startswith('moventra-tenant-'):
-                parts=ext.split('-'); tid=int(parts[2]); plan=parts[3]; t=db.session.get(Tenant,tid)
+            match=re.fullmatch(r'moventra-tenant-(\d+)-(essencial|profissional|estudio)(?:-(monthly|annual))?', ext)
+            if match:
+                tid=int(match.group(1)); plan=match.group(2); t=db.session.get(Tenant,tid)
                 if t and plan in PLANS:
                     t.plan=plan
                     t.mp_payment_id=str(sub.get('id'))
