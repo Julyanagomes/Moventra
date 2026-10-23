@@ -221,7 +221,25 @@ def subscribe(plan_key):
         # /preapproval cria uma assinatura recorrente; não usar checkout/preferences para mensalidade SaaS.
         r=requests.post(MP_API+'/preapproval',headers=mp_headers(),json=payload,timeout=20)
         if r.status_code>=400:
-            app.logger.error('MP preapproval error: %s',r.text[:500]); flash('O Mercado Pago não aceitou a assinatura. Verifique credenciais e disponibilidade da API de assinaturas.','error'); return redirect(url_for('choose_plan'))
+            
+        try:
+            erro_mp = r.json()
+        except ValueError:
+            erro_mp = {"resposta": r.text[:1000]}
+
+        app.logger.error(
+            "MP preapproval rejected: status=%s resposta=%s request_id=%s",
+            r.status_code,
+            erro_mp,
+            r.headers.get("x-request-id", "não informado")
+        )
+
+        flash(
+            "O Mercado Pago recusou a assinatura. Consulte os Logs do Render.",
+            "error"
+        )
+        return redirect(url_for('choose_plan'))
+
         pref=r.json(); t.plan=plan_key; t.mp_preference_id=pref.get('id'); db.session.commit()
         return redirect(pref.get('init_point') or pref.get('sandbox_init_point'))
     except requests.RequestException:
